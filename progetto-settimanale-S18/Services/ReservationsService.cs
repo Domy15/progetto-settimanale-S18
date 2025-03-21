@@ -62,6 +62,29 @@ namespace progetto_settimanale_S18.Services
             }
         }
 
+        public async Task<ReservationsListViewModel> GetReservationsEndedAsync()
+        {
+            var reservationsList = new ReservationsListViewModel();
+
+            try
+            {
+                reservationsList.Reservations = await _context.Reservations
+                    .Include(r => r.Customer)
+                    .Include(r => r.Room)
+                    .Include(r => r.User)
+                    .Where(r => r.Ended == true)
+                    .ToListAsync();
+
+
+                return reservationsList;
+            }
+            catch
+            {
+                reservationsList.Reservations = new List<Reservation>();
+                return reservationsList;
+            }
+        }
+
         public async Task<Customer> CheckEmailAsync(string email)
         {
             var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == email);
@@ -73,14 +96,18 @@ namespace progetto_settimanale_S18.Services
         {
             var rooms = await _context.Rooms
                 .Where(r => r.Reservations.All(r => r.Ended == true))
+                .OrderBy(r => r.Number)
                 .ToListAsync();
 
             return rooms;
         }
 
-        public async Task<List<Room>> GetAllRoomsAsync()
+        public async Task<List<Room>> GetAllRoomsAsync(Guid id)
         {
-            var rooms = await _context.Rooms.ToListAsync();
+            var rooms = await _context.Rooms
+                .Where(r => r.Reservations.All(r => r.Ended == true) || r.Id == id)
+                .OrderBy(r => r.Number)
+                .ToListAsync();
 
             return rooms;
         }
@@ -152,6 +179,48 @@ namespace progetto_settimanale_S18.Services
             reservation.RoomId = editReservationViewModel.RoomId;
 
             return await SaveAsync();
+        }
+
+        public async Task<bool> DeleteReservationById(Guid id)
+        {
+            try
+            {
+                var reservation = await _context.Reservations.FindAsync(id);
+
+                if (reservation == null)
+                {
+                    return false;
+                };
+
+                _context.Reservations.Remove(reservation);
+
+                return await SaveAsync();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> EndReservationAsync(Guid id)
+        {
+            try
+            {
+                var reservation = await _context.Reservations.FindAsync(id);
+
+                if(reservation == null)
+                {
+                    return false;
+                };
+
+                reservation.Ended = true;
+
+                return await SaveAsync();
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

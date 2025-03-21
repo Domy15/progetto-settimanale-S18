@@ -6,7 +6,7 @@
 
 <form method="get" asp-controller="Reservations" asp-action="CheckEmail">
 	<div class="mb-3">
-		<label for="email" class="form-label">Email</label>
+		<label for="email" class="form-label">Customer email</label>
 		<input id="email" class="form-control" asp-for="@Model.Email" />
 		<span asp-validation-for="Email" class="text-danger"></span>
 	</div>
@@ -72,6 +72,7 @@ else if (Model.ItExist == true)
 	<form method="post" asp-controller="Reservations" asp-action="AddReservation">
 
 		<input type="hidden" asp-for="Email" value="@Model.Email" />
+		<input type="hidden" asp-for="ItExist" value=@Model.ItExist />
 
 		<div class="mb-3">
 			<label for="startDate" class="form-label">Start Date</label>
@@ -91,7 +92,7 @@ else if (Model.ItExist == true)
 				@foreach (var room in Model.rooms)
 				{
 					<div>
-						<label for="@room.Id">@room.Type room n. @room.Number - @room.Price</label>
+						<label for="@room.Id">@room.Type room n. @room.Number - @room.Price€</label>
 						<input type="radio" id="@room.Id" name="RoomId" value="@room.Id" asp-for="RoomId" />
 					</div>
 				}

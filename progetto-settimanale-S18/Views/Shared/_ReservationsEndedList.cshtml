@@ -18,12 +18,6 @@
 				<th>Customer Contacts</th>
 				<th>Insert by</th>
 				<th>Price</th>
-				
-				@if (User.IsInRole("Manager") || User.IsInRole("Admin"))
-				{
-					<th>Actions</th>
-				}
-
 			</tr>
 		</thead>
 		<tbody>
@@ -37,15 +31,6 @@
 					<td>Email: @reservation.Customer.Email Phone: @reservation.Customer.Phone</td>
 					<td>@reservation.User.Email</td>
 					<td>@reservation.Room.Price€</td>
-
-					@if (User.IsInRole("Manager") || User.IsInRole("Admin"))
-					{
-						<td class=" d-flex border-0">
-							<button class="mx-1 btn btn-warning" type="button" onclick="showEditModal('@reservation.ReservationId')">Edit</button>
-							<button class="mx-1 btn btn-danger" type="button" onclick="EndReservation('@reservation.ReservationId')">End Reservation</button>
-						</td>
-					}
-
 				</tr>
 			}
 		</tbody>

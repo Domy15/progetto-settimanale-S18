@@ -1,0 +1,7 @@
+﻿
+@{
+    ViewData["Title"] = "Error";
+    var error = TempData["ErrorPage"] as string;
+}
+
+<span class="text-danger">@error</span>

@@ -8,7 +8,13 @@
 	<a class="btn btn-primary btn-sm" asp-controller="Reservations" asp-action="Add">Reserve a room</a>
 }
 
+<span id="ErrorMessageSpan" class="text-danger"></span>
+
 <div class="mt-3" id="root">
+
+</div>
+
+<div class="mt-3" id="root2">
 
 </div>
 
@@ -33,6 +39,7 @@
 
 		document.addEventListener("DOMContentLoaded" , () =>{
 			loadList();
+			loadListEnded();
 		})
 
 		function loadList(){
@@ -40,6 +47,24 @@
 
 			if(root){
 				fetch("Reservations/GetReservations" , {
+					method: "GET"
+				})
+				.then(response =>{
+					if(response.ok){
+						return response.text();
+					}
+				})
+				.then(response => {
+					root.innerHTML = response;
+				})
+			};
+		}
+
+		function loadListEnded(){
+			let root = document.getElementById("root2");
+
+			if(root){
+				fetch("Reservations/GetReservationsEnded" , {
 					method: "GET"
 				})
 				.then(response =>{
@@ -91,6 +116,55 @@
 						editModalInstance.hide();
 						loadList();
 					}
+				}
+				else{
+					const errorSpan = document.getElementById('ErrorMessageSpan');
+					if(errorSpan){
+						errorSpan.innerHTML = response.message;
+					}
+				}
+			}
+		}
+
+		async function deleteReservation(id){
+			const result = await fetch(`/Reservations/Delete/${id}`, {
+				method: "POST"
+			})
+
+			const response = await result.json();
+
+			if(response.success){
+				const editModal = document.getElementById('editModal');
+
+					if(editModal){
+						const editModalInstance = bootstrap.Modal.getInstance(editModal);
+						editModalInstance.hide();
+						loadList();
+				}
+			}
+			else{
+			    const errorSpan = document.getElementById('ErrorMessageSpan');
+				if(errorSpan){
+					errorSpan.innerHTML = response.message;
+				}
+			}
+		}
+
+		async function EndReservation(id){
+			const result = await fetch(`Reservations/EndReservation/${id}`, {
+				method: "POST"
+			})
+
+			const response = await result.json();
+
+			if(response.success){
+				loadList();
+				loadListEnded();
+			}
+			else{
+				const errorSpan = document.getElementById('ErrorMessageSpan');
+				if(errorSpan){
+					errorSpan.innerHTML = response.message;
 				}
 			}
 		}

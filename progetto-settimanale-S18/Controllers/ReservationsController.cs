@@ -25,16 +25,34 @@ namespace progetto_settimanale_S18.Controllers
             try
             {
                 var reservationsList = await _reservationsService.GetReservationsAsync();
+                TempData["Title"] = "Reservations in progress";
 
                 return PartialView("_ReservationsList", reservationsList);
             }
             catch
             {
-                TempData["Error"] = "Error";
-                return RedirectToAction("Index", "Home");
+                TempData["ErrorPage"] = "Error while getting reservations!";
+                return PartialView("_Error");
             }
         }
 
+        public async Task<IActionResult> GetReservationsEnded()
+        {
+            try
+            {
+                var reservationsList = await _reservationsService.GetReservationsEndedAsync();
+                TempData["Title"] = "Reservations ended";
+
+                return PartialView("_ReservationsList", reservationsList);
+            }
+            catch
+            {
+                TempData["ErrorPage"] = "Error while getting reservations!";
+                return PartialView("_Error");
+            }
+        }
+
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Add(AddReservationViewModel addReservationViewModel)
         {
             var rooms = await _reservationsService.GetRoomsAsync();
@@ -65,9 +83,17 @@ namespace progetto_settimanale_S18.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> AddReservation(AddReservationViewModel addReservationViewModel)
         {
             ModelState.Remove("rooms");
+            if (addReservationViewModel.ItExist == true)
+            {
+                ModelState.Remove("Phone");
+                ModelState.Remove("LastName");
+                ModelState.Remove("Name");
+            }
+
             if (!ModelState.IsValid) 
             {
                 return RedirectToAction("Add", addReservationViewModel);
@@ -84,10 +110,11 @@ namespace progetto_settimanale_S18.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Edit(Guid id)
         {
             var reservation = await _reservationsService.GetReservationById(id);
-            var rooms = await _reservationsService.GetAllRoomsAsync();
+            var rooms = await _reservationsService.GetAllRoomsAsync(reservation.RoomId);
 
             if (reservation == null)
             {
@@ -109,6 +136,7 @@ namespace progetto_settimanale_S18.Controllers
         }
 
         [HttpPost("Reservations/Edit/Save")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> SaveEdit(EditReservationViewModel editReservationViewModel)
         {
             ModelState.Remove("rooms");
@@ -132,6 +160,49 @@ namespace progetto_settimanale_S18.Controllers
             {
                 success = true,
                 message = "Entity updated successfully"
+            });
+        }
+
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result = await _reservationsService.DeleteReservationById(id);
+
+            if (!result)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error while deleting entity"
+                });
+            }
+
+            return Json(new
+            {
+                success = true,
+                message = "Entity deleted successfully"
+            });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> EndReservation(Guid id)
+        {
+            var result = await _reservationsService.EndReservationAsync(id);
+
+            if (!result)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error while ending entity"
+                }); 
+            }
+
+            return Json(new
+            {
+                success = true,
+                message = "Entity ended successfully"
             });
         }
     }
