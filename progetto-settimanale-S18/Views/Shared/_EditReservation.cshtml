@@ -1,0 +1,45 @@
+﻿@model EditReservationViewModel
+
+<form id="editForm">
+	<input type="hidden" asp-for="Id" />
+
+	<div class="mb-3">
+		<label for="email" class="form-label">Email</label>
+		<input id="email" class="form-control" asp-for="@Model.Email" />
+		<span asp-validation-for="Email" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label for="phone" class="form-label">Phone</label>
+		<input id="phone" class="form-control" asp-for="@Model.Phone" />
+		<span asp-validation-for="Phone" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label for="startDate" class="form-label">Start Date</label>
+		<input id="startDate" class="form-control" asp-for="@Model.StartDate" />
+		<span asp-validation-for="StartDate" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label for="endDate" class="form-label">End Date</label>
+		<input id="endDate" class="form-control" asp-for="@Model.EndDate" />
+		<span asp-validation-for="EndDate" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label class="form-label">Select Room:</label>
+		<div>
+			@foreach (var room in Model.rooms)
+			{
+				<div>
+					<label for="@room.Id">@room.Type room n. @room.Number - @room.Price</label>
+					<input type="radio" id="@room.Id" name="RoomId" value="@room.Id" asp-for="RoomId" />
+				</div>
+			}
+		</div>
+		<span asp-validation-for="RoomId" class="text-danger"></span>
+	</div>
+
+	<button class="btn btn-success" type="button" onclick="sendEditForm()">Save</button>
+</form>

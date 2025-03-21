@@ -1,0 +1,99 @@
+﻿
+@{
+	ViewData["Title"] = "Reservations";
+}
+
+@if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+{
+	<a class="btn btn-primary btn-sm" asp-controller="Reservations" asp-action="Add">Reserve a room</a>
+}
+
+<div class="mt-3" id="root">
+
+</div>
+
+<div id="editModal" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Edit Reservation</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div id="editBody" class="modal-body">
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts{
+	<script>
+
+		document.addEventListener("DOMContentLoaded" , () =>{
+			loadList();
+		})
+
+		function loadList(){
+			let root = document.getElementById("root");
+
+			if(root){
+				fetch("Reservations/GetReservations" , {
+					method: "GET"
+				})
+				.then(response =>{
+					if(response.ok){
+						return response.text();
+					}
+				})
+				.then(response => {
+					root.innerHTML = response;
+				})
+			};
+		}
+
+		function showEditModal(id){
+			fetch(`Reservations/Edit/${id}`)
+			.then(response => response.text())
+			.then(response => {
+			   const modalComponent = document.getElementById('editModal');
+
+				if(modalComponent){
+					let editModal = new bootstrap.Modal(modalComponent);
+					let body = document.getElementById('editBody');
+					if(body){
+						body.innerHTML = response;
+					}
+					editModal.show();
+				}
+			})
+		}
+
+		async function sendEditForm(){
+			const form = document.getElementById('editForm');
+
+			if(form){
+				const formData = new FormData(form);
+
+				const result = await fetch('Reservations/Edit/Save', {
+					method: "POST",
+					body: formData
+				})
+
+				const response = await result.json();
+
+				if(response.success){
+					const editModal = document.getElementById('editModal');
+
+					if(editModal){
+						const editModalInstance = bootstrap.Modal.getInstance(editModal);
+						editModalInstance.hide();
+						loadList();
+					}
+				}
+			}
+		}
+
+	</script>
+}
