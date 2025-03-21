@@ -43,7 +43,7 @@ namespace progetto_settimanale_S18.Controllers
                 var reservationsList = await _reservationsService.GetReservationsEndedAsync();
                 TempData["Title"] = "Reservations ended";
 
-                return PartialView("_ReservationsList", reservationsList);
+                return PartialView("_ReservationsEndedList", reservationsList);
             }
             catch
             {
