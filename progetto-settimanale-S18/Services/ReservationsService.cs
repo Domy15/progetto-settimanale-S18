@@ -50,6 +50,7 @@ namespace progetto_settimanale_S18.Services
                     .Include(r => r.Room)
                     .Include(r => r.User)
                     .Where(r => r.Ended == false)
+                    .OrderByDescending(r => r.Created)
                     .ToListAsync();
                 
 
@@ -73,6 +74,7 @@ namespace progetto_settimanale_S18.Services
                     .Include(r => r.Room)
                     .Include(r => r.User)
                     .Where(r => r.Ended == true)
+                    .OrderByDescending(r => r.Created)
                     .ToListAsync();
 
 
